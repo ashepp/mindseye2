@@ -3,7 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import ErrorAlert from './components/ErrorAlert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 const TodoistVisualizer = () => {
   const [apiKey, setApiKey] = useState('');
@@ -13,22 +14,18 @@ const TodoistVisualizer = () => {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState({});
   const [error, setError] = useState(null);
-
-  const handleError = (message) => {
-    setError(message);
-    setLoading(false);
-  };
+  const [imageGenerating, setImageGenerating] = useState(false);
 
   const fetchTodoistData = async () => {
     setLoading(true);
     setError(null);
-    
-    if (!apiKey) {
-      handleError('Please enter your Todoist API key');
-      return;
-    }
-
     try {
+      // Validate API key
+      if (!apiKey.trim()) {
+        throw new Error('Please enter your Todoist API key');
+      }
+
+      // Fetch favorites
       const favResponse = await fetch('https://api.todoist.com/rest/v2/favorites', {
         headers: {
           'Authorization': `Bearer ${apiKey}`
@@ -36,19 +33,21 @@ const TodoistVisualizer = () => {
       });
       
       if (!favResponse.ok) {
-        throw new Error(favResponse.status === 401 
-          ? 'Invalid API key. Please check your credentials.'
-          : 'Failed to fetch favorites. Please try again.');
+        if (favResponse.status === 401) {
+          throw new Error('Invalid API key. Please check and try again.');
+        }
+        throw new Error('Failed to fetch favorites. Please try again.');
       }
       
       const favData = await favResponse.json();
       
+      // Fetch filters
       const filterResponse = await fetch('https://api.todoist.com/rest/v2/filters', {
         headers: {
           'Authorization': `Bearer ${apiKey}`
         }
       });
-      
+
       if (!filterResponse.ok) {
         throw new Error('Failed to fetch filters. Please try again.');
       }
@@ -57,9 +56,12 @@ const TodoistVisualizer = () => {
       
       setFavorites(favData);
       setFilters(filterData);
-      setLoading(false);
     } catch (error) {
-      handleError(error.message || 'An unexpected error occurred. Please try again.');
+      setError(error.message);
+      setFavorites([]);
+      setFilters([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,24 +75,26 @@ const TodoistVisualizer = () => {
   };
 
   const generateImages = async () => {
-    if (selectedItems.length === 0) {
-      handleError('Please select at least one item to generate images.');
-      return;
-    }
-
-    setLoading(true);
+    setImageGenerating(true);
     setError(null);
     try {
-      // Simulating image generation with placeholder
+      if (selectedItems.length === 0) {
+        throw new Error('Please select at least one item to visualize');
+      }
+      
+      // Placeholder for image generation
       const newImages = {};
-      selectedItems.forEach(id => {
+      for (const id of selectedItems) {
+        // Simulate API call with delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
         newImages[id] = '/api/placeholder/300/200';
-      });
+      }
       setImages(newImages);
     } catch (error) {
-      handleError('Failed to generate images. Please try again.');
+      setError(error.message);
+    } finally {
+      setImageGenerating(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -100,9 +104,15 @@ const TodoistVisualizer = () => {
           <CardTitle>Todoist Task Visualizer</CardTitle>
         </CardHeader>
         <CardContent>
-          {error && <ErrorAlert message={error} onClose={() => setError(null)} />}
-          
           <div className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <div className="flex gap-4">
               <Input
                 type="password"
@@ -114,15 +124,21 @@ const TodoistVisualizer = () => {
               />
               <Button 
                 onClick={fetchTodoistData}
-                disabled={!apiKey || loading}
-                className="min-w-[100px]"
+                disabled={loading}
+                className="relative"
               >
+                {loading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 {loading ? 'Loading...' : 'Fetch Data'}
               </Button>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Favorites</h3>
+              {favorites.length === 0 && !loading && (
+                <p className="text-gray-500">No favorites found. Connect your Todoist account to see your favorites.</p>
+              )}
               <div className="space-y-2">
                 {favorites.map(favorite => (
                   <div key={favorite.id} className="flex items-center space-x-2">
@@ -130,7 +146,6 @@ const TodoistVisualizer = () => {
                       id={`fav-${favorite.id}`}
                       checked={selectedItems.includes(favorite.id)}
                       onCheckedChange={() => handleItemToggle(favorite.id)}
-                      disabled={loading}
                     />
                     <label htmlFor={`fav-${favorite.id}`}>{favorite.name}</label>
                     {images[favorite.id] && (
@@ -145,6 +160,9 @@ const TodoistVisualizer = () => {
               </div>
 
               <h3 className="text-lg font-semibold mt-6">Filters</h3>
+              {filters.length === 0 && !loading && (
+                <p className="text-gray-500">No filters found. Create filters in Todoist to see them here.</p>
+              )}
               <div className="space-y-2">
                 {filters.map(filter => (
                   <div key={filter.id} className="flex items-center space-x-2">
@@ -152,7 +170,6 @@ const TodoistVisualizer = () => {
                       id={`filter-${filter.id}`}
                       checked={selectedItems.includes(filter.id)}
                       onCheckedChange={() => handleItemToggle(filter.id)}
-                      disabled={loading}
                     />
                     <label htmlFor={`filter-${filter.id}`}>{filter.name}</label>
                     {images[filter.id] && (
@@ -169,10 +186,13 @@ const TodoistVisualizer = () => {
 
             <Button
               onClick={generateImages}
-              disabled={selectedItems.length === 0 || loading}
+              disabled={selectedItems.length === 0 || imageGenerating}
               className="mt-4"
             >
-              {loading ? 'Generating...' : 'Generate Images'}
+              {imageGenerating && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {imageGenerating ? 'Generating Images...' : 'Generate Images'}
             </Button>
           </div>
         </CardContent>
