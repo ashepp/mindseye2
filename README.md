@@ -1,1 +1,25 @@
-IyBNaW5kc2V5ZTIKCkEgd2ViYXBwIHRoYXQgdmlzdWFsaXplcyBUb2RvaXN0IHRhc2tzIHVzaW5nIEFJIGltYWdlIGdlbmVyYXRpb24uIFRoaXMgdG9vbCBoZWxwcyB5b3UgY3JlYXRlIHZpc3VhbCByZXByZXNlbnRhdGlvbnMgb2YgeW91ciB0YXNrcyBhbmQgZmlsdGVycyB1c2luZyBhZHZhbmNlZCBpbWFnZSBnZW5lcmF0aW9uIHRlY2huaXF1ZXMuCgojIyBGZWF0dXJlcwoKLSBDb25uZWN0IHRvIHlvdXIgVG9kb2lzdCBhY2NvdW50IHVzaW5nIEFQSSBrZXkKLSBWaWV3IGFuZCBzZWxlY3QgZnJvbSB5b3VyIGZhdm9yaXRlcyBhbmQgZmlsdGVycwotIEdlbmVyYXRlIEFJLXBvd2VyZWQgaW1hZ2VzIGJhc2VkIG9uIHNlbGVjdGVkIHRhc2tzCi0gTW9kZXJuLCByZXNwb25zaXZlIFVJIGJ1aWx0IHdpdGggUmVhY3QKLSBTZWN1cmUgaGFuZGxpbmcgb2YgQVBJIGtleXMKCiMjIFNldHVwCgoxLiBDbG9uZSB0aGUgcmVwb3NpdG9yeQoyLiBJbnN0YWxsIGRlcGVuZGVuY2llczogYG5wbSBpbnN0YWxsYAozLiBDcmVhdGUgYSBgLmVudmAgZmlsZSB3aXRoIHlvdXIgVG9kb2lzdCBBUEkga2V5CjQuIFJ1biB0aGUgZGV2ZWxvcG1lbnQgc2VydmVyOiBgbnBtIHN0YXJ0YAoKIyMgVGVjaG5vbG9naWVzCgotIFJlYWN0Ci0gVGFpbHdpbmQgQ1NTCS0gVG9kb2lzdCBBUEkKLSBBSSBJbWFnZSBHZW5lcmF0aW9u
+# Mindseye2
+
+A webapp that visualizes Todoist tasks using AI image generation. This tool helps you create visual representations of your tasks and filters using advanced image generation techniques.
+
+## Features
+
+- Connect to your Todoist account using API key
+- View and select from your favorites and filters
+- Generate AI-powered images based on selected tasks
+- Modern, responsive UI built with React
+- Secure handling of API keys
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a `.env` file with your Todoist API key
+4. Run the development server: `npm start`
+
+## Technologies
+
+- React
+- Tailwind CSS
+- Todoist API
+- AI Image Generation
